@@ -1,0 +1,14 @@
+<%- include('./partials/head'); %> 
+<%- include('./partials/nav'); %>    
+
+<div class="container">
+<form mehtod="POST" action="/mfa">
+  <div class="mb-3">
+    <label for="code" class="form-label">Code</label>
+    <input type="text" class="form-control" id="codeInput" name='mfa_code'>        
+  </div>
+  <div class="mb-3">
+    <input type="submit" value="Save" class="form-control">
+  </div>
+</form>
+</div>
