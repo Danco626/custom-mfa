@@ -71,6 +71,14 @@ app.use(routes);
 //   next(new Error('404'));
 // })
 
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  //res.status(err.status || 500);
+  res.render('error', {
+    message: err.message,
+    error: err
+  });
+});
+
 app.listen(port, async () => {
   console.log('starting server');
 })

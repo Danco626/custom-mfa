@@ -1,29 +1,31 @@
 <!DOCTYPE html>
 <html>
-   <%- include('./partials/head'); %>
-  <body>    
-    
-      <%- include('./partials/nav'); %>    
-    
-   <main class="container">
-    <div style="text-align:center">
-     <h1>Enroll in MFA</h1>
-     <p><%=factors%></p>
-     <% if (factors) { %>
-      
-     
-     <ul class="list-group"></ul>
-     <% for( let index = 0; index < factors.length; index++ ) { %>
-      
-         <li class="list-group-item"><a href="/enroll/<%=factors[index]%>"><%=factors[index]%></a></li>
-         
-       
-     <% } %>
-     <% } %>
-   </ul>
-     
-    </div>
-   </main>
-    
+<%- include('./partials/head'); %>
+
+  <body>
+
+    <%- include('./partials/nav'); %>
+
+      <main class="container">
+        <div style="text-align:center">
+          <h1>Enroll in MFA</h1>
+
+          <% if (factors) { %>
+            <ul class="list-group">
+              <% for( let index=0; index < factors.length; index++ ) { %>
+
+                <li class="list-group-item"><a href="/enroll/<%=factors[index]%>">
+                    <%=factors[index]%>
+                  </a></li>
+
+
+              <% } %>           
+            </ul>
+          <% } %>
+
+        </div>
+      </main>
+
   </body>
+
 </html>

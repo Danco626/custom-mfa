@@ -6,6 +6,7 @@ const router = express.Router();
 
 const { landingPageHandler } = new HomeController();
 router.get('/', landingPageHandler);
+// router.get('/error', landingPageHandler);
 
 // router.get('/', async(req: Request, res: Response, next:NextFunction) => {
 //   console.log(req.user);

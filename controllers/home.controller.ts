@@ -12,10 +12,7 @@ export default class HomeController implements BaseController {
 
     if (req.hasOwnProperty('user') && req.user !== undefined) {
       const user = req.user as IUser;
-      const connection = user.connection;
-
-
-      
+      const connection = user.connection;      
       for (let i = 0; i < enabledFactors.length; i++) {
         if (enabledFactors[i].connection === connection) {
           availableFactors = enabledFactors[i].factors;
@@ -27,6 +24,8 @@ export default class HomeController implements BaseController {
 
     res.render('index', { factors: availableFactors })
   };
+
+  // public errorHandler = async ()
 
 
 }

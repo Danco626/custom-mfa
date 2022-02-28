@@ -19,8 +19,8 @@ export default class AuthController implements BaseController {
 
   }
   public loginHandler = async (req: Request, res: Response, next: NextFunction) => {
-    //const redirectState = req.query.state;
-    //req.session. ["redirectState"] = redirectState;
+    const redirectState = req.query.state?.toString();
+    req.session.state = redirectState;
 
     const options: AuthenticationOptionsAudience = {
       scope: 'enroll offline_access read:authenticators remove:authenticators openid profile email',
@@ -80,6 +80,7 @@ export default class AuthController implements BaseController {
 
     } catch (e) {
       console.log(e);
+      next(e);
     }
   };
 
@@ -94,9 +95,21 @@ export default class AuthController implements BaseController {
     const code = req.query.mfa_code.toString();
     try {
       const result = await this.authService.confirmSecondFactor(user.accessToken, factor, oobCode, code);
-      console.log(result);
+      
+     
+      if(!result.data) {
+        throw new Error('There was an error while enrolling in MFA');
+      }      
+
+      if (req.session.state) {
+        res.redirect(`https://${auth0domain}/continue?state=${req.session.state}`)       
+      }
+      const enrollmentStatus = {code: 200, message: `Successfully enrolled in ${factor} MFA` }
+      res.render('code', enrollmentStatus);
+           
     } catch (e) {
       console.log(e);
+      next(e);
     }
   }
 

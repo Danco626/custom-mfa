@@ -8,7 +8,7 @@ export const clientSecret = process.env.CLIENT_SECRET || '';
 export const callbackUrl = process.env.AUTH0_CALLBACK_URL || '';
 export const port = process.env.PORT || '4000';
 
-export const enabledFactors = [{connection: 'Username-Password-Authentication', factors: ['email']}, {connection: 'SMSConnection', factors: ['sms']}]
+export const enabledFactors = [{connection: 'Username-Password-Authentication', factors: ['sms']}, {connection: 'SMSConnection', factors: ['sms']}]
 // export const auth0domain = () => {
 //   if(!process.env.AUTH0_DOMAIN)         
 //     throw new Error('Auth0 domain required')  
