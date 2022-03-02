@@ -1,19 +1,7 @@
 # Custom MFA Enrollment
 
 ## Purpose  
-This application is used to enroll users in email, sms/voice, and/or TOTP multifactor authentication. Users can login directly or redirect via a redirect rule/action to enroll during authentication. The available factors are determined by the connection in included in the id token. The connection is compared to the `enabledFactors` array defined in ./config/config.ts.
-
-```json
-enabledFactors: {[
-  {
-    connection: 'Username-Password-Authentication',
-    factors: ['email']
-  }, {
-    connection: 'SMSConnection', 
-    factors: ['sms']
-  }
-]}
-```
+This application is used to enroll users in email, sms/voice, and/or TOTP multifactor authentication. Users can login directly or redirect via a redirect rule/action to enroll during authentication. Optionally, the available factors can be managed by connection. 
 
 ## Tech  
 * **Language**: Typescript  
@@ -26,8 +14,8 @@ enabledFactors: {[
 
 ### AddCustomClaimsToJWT  
 Adds two custom claims to the id token  
-* **http://danco.cloud/connection**: The conection authenticated against  
-* **http://danco.cloud/phone**: Adds the user's phone number if it exists in app_metadata.phone. REQUIRED for sms/voice MFA enrollment.  
+* **http://${namespace}/connection**: The conection authenticated against  
+* **http://${namespace}/phone**: Adds the user's phone number if it exists in app_metadata.phone. REQUIRED for sms/voice MFA enrollment.  
 
 ### RedirectToMfaEnrollmentApplication  
 Checks if the user in enrolled in MFA. If they are, the user is prompted for MFA via the out-of-box Auth0 screens. If the user has not previously enrolled, the user is  redirected to the MFA enrollment application.   
@@ -44,7 +32,7 @@ Checks if the user in enrolled in MFA. If they are, the user is prompted for MFA
 5. Create a new rule and copy the contents of `./rules/RedirectToMfaEnrollmentApplication` and save  
     * on line 4, replace the client id with the MFA Enrollment client id
 
-## Configuration  
+## Env Configuration  
 Create a .env file at the root directory with the following variables
 ```
 EXPORT_DOMAIN='tenant or custom domain'
@@ -54,6 +42,22 @@ AUTH0_CALLBACK_URL='the MFA enrollment apps callback URL'
 PORT='port where the MFA enrollment app will run'
 SESSION_SECRET='Used to generate the express session id'
 CUSTOM_CLAIM_NAMESPACE='namespace used in the AddCustomClaimsToJWT rule'
+IS_MFA_BY_CONNECTION='when set to true, the ./config/enabledFactors.ts array is used to display factors based on connection'
+```
+
+## Application Configuration
+Connection to factors mapping is handled in ./config/enabledFactors.ts. This should be updated to meet the requirements.  
+
+```
+[
+  { 
+    connection: 'Connection1', 
+    factors: [Factor.email] 
+  }, { 
+    connection: 'Connection2', 
+    factors: [Factor.sms, Factor.email] 
+  }
+]
 ```
 
 ## Prerequisites
