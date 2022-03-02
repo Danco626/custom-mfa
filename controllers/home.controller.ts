@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
 import { enabledFactors } from '../config/config'
 import IUser from '../interfaces/IUser';
-import BaseController from './base.controller';
 
-export default class HomeController implements BaseController {
+export default class HomeController {
   constructor() {  }
 
   public landingPageHandler = async (req: Request, res: Response, next: NextFunction) => {   
@@ -20,12 +19,6 @@ export default class HomeController implements BaseController {
         }
       }
     }
-
-
     res.render('index', { factors: availableFactors })
   };
-
-  // public errorHandler = async ()
-
-
 }

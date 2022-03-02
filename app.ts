@@ -1,4 +1,3 @@
-//import dotenv from 'dotenv';
 import path from 'path';
 import logger from 'morgan';
 import cookieParser from 'cookie-parser';
@@ -8,8 +7,9 @@ import { auth0Strategy } from './config/authStrategy';
 import passport from 'passport';
 import userInView from './middleware/userInViews';
 import routes from './routes';
-import { port } from './config/config';
-//dotenv.config();
+import { port, sessionSecret } from './config/config';
+import log from './utils/logger';
+import IUser from './interfaces/IUser';
 
 
 passport.use(auth0Strategy);
@@ -18,7 +18,7 @@ passport.serializeUser(function(user, done) {
   done(null, user);
 });
 
-passport.deserializeUser(function(user: any, done) {
+passport.deserializeUser(function(user: IUser, done) {
   done(null, user);
 });
 
@@ -30,7 +30,8 @@ app.set('view engine', 'ejs');
 app.use(cookieParser());
 
 const sessionOptions:SessionOptions = {
-  secret: 'CHANGE THIS SECRET',
+  secret: sessionSecret,
+  //secret: 'CHANGE THIS SECRET',
   cookie: { sameSite: false },
   resave: false,
   saveUninitialized: true
@@ -72,7 +73,7 @@ app.use(routes);
 // })
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  //res.status(err.status || 500);
+  log.error(err);
   res.render('error', {
     message: err.message,
     error: err

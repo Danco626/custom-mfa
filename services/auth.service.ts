@@ -2,6 +2,7 @@ import axios, { AxiosPromise } from 'axios';
 import { auth0domain, clientId, clientSecret } from '../config/config';
 import IAuthService from '../interfaces/IAuthService';
 import { AuthenticatorType, Factor, MfaAssociatedRequest, MfaAssociatedResponse, MfaConfirmationRequest, AuthResponse} from '../types/auth.types';
+
 export default class AuthService implements IAuthService{
   constructor() { }
 

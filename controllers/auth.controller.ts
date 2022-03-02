@@ -3,21 +3,19 @@ import passport from "passport";
 import { AuthenticateOptions } from "passport-auth0";
 import { auth0domain, clientId, port } from '../config/config';
 import url from 'url';
-import { Factor, AuthenticatorType } from '../types/auth.types';
+import { Factor} from '../types/auth.types';
 import IAuthService from "../interfaces/IAuthService";
 import IUser from "../interfaces/IUser";
-
-import BaseController from './base.controller';
-
+import log from '../utils/logger';
+import * as sessionProps from '../types/session'; // required to extend express SessionData
 
 interface AuthenticationOptionsAudience extends AuthenticateOptions {
   audience: string
 }
 
-export default class AuthController implements BaseController {
-  constructor(private authService: IAuthService) {
-
-  }
+export default class AuthController  {
+  constructor(private authService: IAuthService) {  }
+  
   public loginHandler = async (req: Request, res: Response, next: NextFunction) => {
     const redirectState = req.query.state?.toString();
     req.session.state = redirectState;
@@ -29,10 +27,7 @@ export default class AuthController implements BaseController {
 
     passport.authenticate("auth0", options, () => {
       console.log('in callback');
-    })(req, res, next);//,
-    // (req: Request, res: Response) => {
-    //   res.redirect("/")
-    // }
+    })(req, res, next);
   };
 
   public callbackHandler = async (req: Request, res: Response, next: NextFunction) => {
@@ -41,8 +36,7 @@ export default class AuthController implements BaseController {
         return next(err);
       }
       if (!user) {
-        console.log("no user");
-        console.log(info)
+        //log.error("no user")                
         return res.redirect('/login');
       }
       req.logIn(user, function (err) {
@@ -69,7 +63,7 @@ export default class AuthController implements BaseController {
     const factor = req.params.factor as Factor;
     const user = req.user as IUser;
     const identifier = factor === Factor.email ? user.displayName : user.phone_number;
-    console.log(req.session);
+    log.info("recieved state", req.session);    
 
     try {
       const result = await this.authService.addAuthenticator(user.accessToken, factor, identifier);
@@ -101,14 +95,14 @@ export default class AuthController implements BaseController {
         throw new Error('There was an error while enrolling in MFA');
       }      
 
-      if (req.session.state) {
-        res.redirect(`https://${auth0domain}/continue?state=${req.session.state}`)       
+      if (!req.session.state) {
+        log.info("in if", req.session.state);
+        const enrollmentStatus = {code: 200, message: `Successfully enrolled in ${factor} MFA` };
+        res.render('mfaComplete', enrollmentStatus); 
+      } else {
+        res.redirect(`https://${auth0domain}/continue?state=${req.session.state}`);                  
       }
-      const enrollmentStatus = {code: 200, message: `Successfully enrolled in ${factor} MFA` }
-      res.render('code', enrollmentStatus);
-           
-    } catch (e) {
-      console.log(e);
+    } catch (e) {      
       next(e);
     }
   }

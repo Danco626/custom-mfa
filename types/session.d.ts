@@ -1,5 +1,4 @@
 import { Factor, AuthenticatorType } from '../types/auth.types';
-
 declare module 'express-session' {
   interface SessionData {
     authenticator_type: AuthenticatorType,
@@ -9,12 +8,9 @@ declare module 'express-session' {
     oob_channel?: Factor,
     oob_code?: string,
     secret?: string,
+    returnTo: string,
     redirectState: string,
     state: string,
     factor: Factor    
   }
-}
-
-export default class BaseController {
-  constructor() { } 
 }
