@@ -13,7 +13,7 @@
       ],
       "outputCapture": "std",
       "envFile":"${workspaceFolder}/urlshortener/.env",
-      "program": "${workspaceFolder}/build/app.js",
+      "program": "${workspaceFolder}/dist/app.js",
       "outFiles": [
         "${workspaceFolder}/**/*.js"
       ]

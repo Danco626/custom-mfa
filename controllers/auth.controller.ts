@@ -3,7 +3,7 @@ import passport from "passport";
 import { AuthenticateOptions } from "passport-auth0";
 import { auth0domain, clientId, port } from '../config/config';
 import url from 'url';
-import { Factor} from '../types/auth.types';
+import { Factor } from '../types/auth.types';
 import IAuthService from "../interfaces/IAuthService";
 import IUser from "../interfaces/IUser";
 import log from '../utils/logger';

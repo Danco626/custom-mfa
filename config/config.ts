@@ -1,4 +1,3 @@
-//import Factor from '../types/auth.types';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -8,4 +7,5 @@ export const clientSecret = process.env.CLIENT_SECRET || '';
 export const callbackUrl = process.env.AUTH0_CALLBACK_URL || '';
 export const port = process.env.PORT || '4000';
 export const sessionSecret = process.env.SESSION_SECRET || '';
-export const enabledFactors = [{connection: 'Username-Password-Authentication', factors: ['email']}, {connection: 'SMSConnection', factors: ['sms']}]
+export const customClaimNamespace = process.env.CUSTOM_CLAIM_NAMESPACE || '';
+export const isMfaByConnection = process.env.IS_MFA_BY_CONNECTION?.toLowerCase() == 'true';
