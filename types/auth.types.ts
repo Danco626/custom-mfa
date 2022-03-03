@@ -16,7 +16,7 @@ export type MfaAssociatedRequest = {
   oob_channels?: [Factor]  
 }
 
-export type MfaAssociatedResponse = {
+export type MfaAssociatedInfo = {
   authenticator_type: AuthenticatorType,
   recovery_codes: string[],
   barcode_uri: string, 

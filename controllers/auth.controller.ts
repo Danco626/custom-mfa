@@ -18,7 +18,10 @@ export default class AuthController  {
   
   public loginHandler = async (req: Request, res: Response, next: NextFunction) => {
     const redirectState = req.query.state?.toString();
-    req.session.state = redirectState;
+    if(redirectState) {
+      log.info("recieved state", redirectState);    
+      req.session.state = redirectState;
+    }
 
     const options: AuthenticationOptionsAudience = {
       scope: 'enroll offline_access read:authenticators remove:authenticators openid profile email',
@@ -35,8 +38,7 @@ export default class AuthController  {
       if (err) {
         return next(err);
       }
-      if (!user) {
-        //log.error("no user")                
+      if (!user) {                
         return res.redirect('/login');
       }
       req.logIn(user, function (err) {
@@ -63,13 +65,15 @@ export default class AuthController  {
     const factor = req.params.factor as Factor;
     const user = req.user as IUser;
     const identifier = factor === Factor.email ? user.displayName : user.phone_number;
-    log.info("recieved state", req.session);    
-
+    
     try {
       const result = await this.authService.addAuthenticator(user.accessToken, factor, identifier);
-      const authenticatorResult = result.data;
-      req.session.oob_code = authenticatorResult.oob_code;
-      req.session.factor = factor;
+      
+      if(result.status !== 200) {
+        throw new Error('An error occurred while enrolling in MFA');
+      }
+      req.session.mfaAssociateInfo = result.data      
+      //req.session.factor = factor;
       res.render('code', { factor: factor })
 
     } catch (e) {
@@ -79,25 +83,25 @@ export default class AuthController  {
   };
 
   public mfaValidationHandler = async (req: Request, res: Response, next: NextFunction) => {
-    if (!req.session.factor || !req.session.oob_code || !req.query.mfa_code) {
-      throw new Error('');
-    }
+    if (!req.session.mfaAssociateInfo || !req.query.mfa_code) {
+      throw new Error('Missing session data');
+    }    
     
-    const user = req.user as IUser;
-    const factor = req.session.factor as Factor;
-    const oobCode = req.session.oob_code!;    
+    const user = req.user as IUser;        
+    const mfaEnrollmentInfo = req.session.mfaAssociateInfo;    
     const code = req.query.mfa_code.toString();
+
     try {
-      const result = await this.authService.confirmSecondFactor(user.accessToken, factor, oobCode, code);
+      const result = await this.authService.confirmSecondFactor(user.accessToken, mfaEnrollmentInfo, code);
       
      
-      if(!result.data) {
-        throw new Error('There was an error while enrolling in MFA');
+      if(result.status !== 200) {
+        throw new Error('An error occurred while verifying your code');
       }      
 
       if (!req.session.state) {
         log.info("in if", req.session.state);
-        const enrollmentStatus = {code: 200, message: `Successfully enrolled in ${factor} MFA` };
+        const enrollmentStatus = {code: 200, message: `Successfully enrolled in ${mfaEnrollmentInfo.oob_channel} MFA` };
         res.render('mfaComplete', enrollmentStatus); 
       } else {
         res.redirect(`https://${auth0domain}/continue?state=${req.session.state}`);                  

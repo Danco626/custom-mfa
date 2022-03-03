@@ -1,12 +1,12 @@
 import axios, { AxiosPromise } from 'axios';
 import { auth0domain, clientId, clientSecret } from '../config/config';
 import IAuthService from '../interfaces/IAuthService';
-import { AuthenticatorType, Factor, MfaAssociatedRequest, MfaAssociatedResponse, MfaConfirmationRequest, AuthResponse} from '../types/auth.types';
+import { AuthenticatorType, Factor, MfaAssociatedRequest, MfaAssociatedInfo, MfaConfirmationRequest, AuthResponse} from '../types/auth.types';
 
 export default class AuthService implements IAuthService{
   constructor() { }
 
-  public async addAuthenticator(accessToken: string, factor: Factor, identifier?:string): Promise<AxiosPromise<MfaAssociatedResponse>> {
+  public async addAuthenticator(accessToken: string, factor: Factor, identifier?:string): Promise<AxiosPromise<MfaAssociatedInfo>> {
    
     //default to OTP
     let request: MfaAssociatedRequest = { authenticator_types: [AuthenticatorType.otp] };
@@ -36,13 +36,14 @@ export default class AuthService implements IAuthService{
     });
   }
 
-  public async confirmSecondFactor(accessToken: string, factor: Factor, oob_code: string, binding_code: string): Promise<AxiosPromise<AuthResponse>> {
+  public async confirmSecondFactor(accessToken: string, mfaEnrollmentInfo: MfaAssociatedInfo, binding_code: string): Promise<AxiosPromise<AuthResponse>> {
+    const oob_code = mfaEnrollmentInfo.oob_code;
     const grantType:string = oob_code ? 'oob' : 'otp'; 
 
     let request: MfaConfirmationRequest = {
       mfa_token: accessToken,
-      client_id: clientId || '',
-      client_secret: clientSecret || '',
+      client_id: clientId,
+      client_secret: clientSecret,
       grant_type: `http://auth0.com/oauth/grant-type/mfa-${grantType}`,
      };
 
@@ -55,7 +56,7 @@ export default class AuthService implements IAuthService{
     } else {
       request = {
         ...request,
-        otp: '',
+        otp: binding_code,
       };            
     }
     
@@ -64,8 +65,6 @@ export default class AuthService implements IAuthService{
       method: 'POST',
       data: request
     });
+
   }
-
-
-
 }

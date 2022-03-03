@@ -1,4 +1,4 @@
-import { Factor, AuthenticatorType } from '../types/auth.types';
+import { Factor, AuthenticatorType, MfaAssociatedInfo } from '../types/auth.types';
 declare module 'express-session' {
   interface SessionData {
     authenticator_type: AuthenticatorType,
@@ -11,6 +11,7 @@ declare module 'express-session' {
     returnTo: string,
     redirectState: string,
     state: string,
-    factor: Factor    
+    factor: Factor,
+    mfaAssociateInfo: MfaAssociatedInfo    
   }
 }
